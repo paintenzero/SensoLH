@@ -285,14 +285,21 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\SensoGlove\Hand.cs" />
-    <Compile Include="Assets\SensoGlove\Receiver\BatteryData.cs" />
-    <Compile Include="Assets\SensoGlove\Receiver\HandData.cs" />
-    <Compile Include="Assets\SensoGlove\Receiver\NetData.cs" />
-    <Compile Include="Assets\SensoGlove\Receiver\NetworkThread.cs" />
-    <Compile Include="Assets\SensoGlove\Receiver\UDPThread.cs" />
-    <Compile Include="Assets\SensoGlove\SensoHandExample.cs" />
-    <Compile Include="Assets\SensoGlove\SensoHandsController.cs" />
+    <Compile Include="Assets\Senso\Body.cs" />
+    <Compile Include="Assets\Senso\Examples\SensoBodyExample.cs" />
+    <Compile Include="Assets\Senso\Examples\SensoHandExample.cs" />
+    <Compile Include="Assets\Senso\Hand.cs" />
+    <Compile Include="Assets\Senso\Helpers\SensoBodyJoint.cs" />
+    <Compile Include="Assets\Senso\Receiver\BatteryData.cs" />
+    <Compile Include="Assets\Senso\Receiver\BodyData.cs" />
+    <Compile Include="Assets\Senso\Receiver\HandData.cs" />
+    <Compile Include="Assets\Senso\Receiver\NetData.cs" />
+    <Compile Include="Assets\Senso\Receiver\NetworkThread.cs" />
+    <Compile Include="Assets\Senso\Receiver\TCPThread.cs" />
+    <Compile Include="Assets\Senso\Receiver\UDPThread.cs" />
+    <Compile Include="Assets\Senso\SensoBaseController.cs" />
+    <Compile Include="Assets\Senso\SensoBodyController.cs" />
+    <Compile Include="Assets\Senso\SensoHandsController.cs" />
     <Compile Include="Assets\SteamVR\Extras\SteamVR_GazeTracker.cs" />
     <Compile Include="Assets\SteamVR\Extras\SteamVR_LaserPointer.cs" />
     <Compile Include="Assets\SteamVR\Extras\SteamVR_Teleporter.cs" />
@@ -345,28 +352,6 @@
     <Compile Include="Assets\SteamVR\InteractionSystem\Core\Scripts\Util.cs" />
     <Compile Include="Assets\SteamVR\InteractionSystem\Core\Scripts\VelocityEstimator.cs" />
     <Compile Include="Assets\SteamVR\InteractionSystem\Hints\Scripts\ControllerButtonHints.cs" />
-    <Compile Include="Assets\SteamVR\InteractionSystem\Longbow\Scripts\ArcheryTarget.cs" />
-    <Compile Include="Assets\SteamVR\InteractionSystem\Longbow\Scripts\Arrow.cs" />
-    <Compile Include="Assets\SteamVR\InteractionSystem\Longbow\Scripts\ArrowHand.cs" />
-    <Compile Include="Assets\SteamVR\InteractionSystem\Longbow\Scripts\ArrowheadRotation.cs" />
-    <Compile Include="Assets\SteamVR\InteractionSystem\Longbow\Scripts\Balloon.cs" />
-    <Compile Include="Assets\SteamVR\InteractionSystem\Longbow\Scripts\BalloonColliders.cs" />
-    <Compile Include="Assets\SteamVR\InteractionSystem\Longbow\Scripts\BalloonHapticBump.cs" />
-    <Compile Include="Assets\SteamVR\InteractionSystem\Longbow\Scripts\BalloonSpawner.cs" />
-    <Compile Include="Assets\SteamVR\InteractionSystem\Longbow\Scripts\ExplosionWobble.cs" />
-    <Compile Include="Assets\SteamVR\InteractionSystem\Longbow\Scripts\FireSource.cs" />
-    <Compile Include="Assets\SteamVR\InteractionSystem\Longbow\Scripts\Longbow.cs" />
-    <Compile Include="Assets\SteamVR\InteractionSystem\Longbow\Scripts\SoundBowClick.cs" />
-    <Compile Include="Assets\SteamVR\InteractionSystem\Samples\Scripts\ControllerHintsExample.cs" />
-    <Compile Include="Assets\SteamVR\InteractionSystem\Samples\Scripts\InteractableExample.cs" />
-    <Compile Include="Assets\SteamVR\InteractionSystem\Teleport\Scripts\AllowTeleportWhileAttachedToHand.cs" />
-    <Compile Include="Assets\SteamVR\InteractionSystem\Teleport\Scripts\ChaperoneInfo.cs" />
-    <Compile Include="Assets\SteamVR\InteractionSystem\Teleport\Scripts\IgnoreTeleportTrace.cs" />
-    <Compile Include="Assets\SteamVR\InteractionSystem\Teleport\Scripts\Teleport.cs" />
-    <Compile Include="Assets\SteamVR\InteractionSystem\Teleport\Scripts\TeleportArc.cs" />
-    <Compile Include="Assets\SteamVR\InteractionSystem\Teleport\Scripts\TeleportArea.cs" />
-    <Compile Include="Assets\SteamVR\InteractionSystem\Teleport\Scripts\TeleportMarkerBase.cs" />
-    <Compile Include="Assets\SteamVR\InteractionSystem\Teleport\Scripts\TeleportPoint.cs" />
     <Compile Include="Assets\SteamVR\Plugins\openvr_api.cs" />
     <Compile Include="Assets\SteamVR\Scripts\SteamVR.cs" />
     <Compile Include="Assets\SteamVR\Scripts\SteamVR_Camera.cs" />
@@ -400,14 +385,11 @@
     <None Include="Assets\SteamVR\InteractionSystem\Core\Shaders\SeeThru.shader" />
     <None Include="Assets\SteamVR\InteractionSystem\Core\Shaders\Silhouette.shader" />
     <None Include="Assets\SteamVR\InteractionSystem\Hints\Shaders\ControllerButtonHints.shader" />
-    <None Include="Assets\SteamVR\InteractionSystem\Readme_InteractionSystem.txt" />
-    <None Include="Assets\SteamVR\InteractionSystem\Teleport\Shaders\Highlight.shader" />
     <None Include="Assets\SteamVR\Resources\SteamVR_AlphaOut.shader" />
     <None Include="Assets\SteamVR\Resources\SteamVR_ClearAll.shader" />
     <None Include="Assets\SteamVR\Resources\SteamVR_ColorOut.shader" />
     <None Include="Assets\SteamVR\Resources\SteamVR_Fade.shader" />
     <None Include="Assets\SteamVR\Resources\SteamVR_SphericalProjection.shader" />
-    <None Include="Assets\SteamVR\readme.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />
