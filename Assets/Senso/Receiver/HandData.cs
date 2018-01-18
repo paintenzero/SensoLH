@@ -4,13 +4,6 @@ using UnityEngine;
 namespace Senso
 {
     ///
-    /// @brief Enumeration for all Senso position types
-    public enum EPositionType
-    {
-        Unknown, RightHand, LeftHand, PositionsCount
-    };
-
-    ///
     /// @brief Enumeration for fingers
     public enum EFingerType
     {
@@ -75,7 +68,14 @@ namespace Senso
         public int temperature;
         
         // Main positions and rotation
-        public EPositionType handType { get { return type.Equals("rh") ? EPositionType.RightHand : EPositionType.LeftHand; } }
+        public EPositionType handType { get
+            {
+                var _type = EPositionType.Unknown;
+                if (type.Equals("rh")) _type = EPositionType.RightHand;
+                else if (type.Equals("lh")) _type = EPositionType.LeftHand;
+                return _type;
+            }
+        }
         public Vector3 PalmPosition { get { return arrToVec3(palm.pos); } }
         public Quaternion PalmRotation { get { return arrToQuat(palm.quat); } }
         public Quaternion WristRotation { get { return arrToQuat(wrist.quat); } }
@@ -117,17 +117,6 @@ namespace Senso
         public HandData data;
     }
 
-    [Serializable]
-    public class PosQuat
-    {
-        public float[] pos;
-        public float[] quat;
-    }
-    [Serializable]
-    public class Quat
-    {
-        public float[] quat;
-    }
     [Serializable]
     public class JsonFinger
     {

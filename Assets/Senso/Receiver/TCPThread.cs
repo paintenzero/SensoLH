@@ -8,25 +8,13 @@ using System.Collections.Generic;
 namespace Senso
 {
     ///
-    /// @brief States of the network thread
-    public enum NetworkState
-    {
-        SENSO_DISCONNECTED, SENSO_CONNECTING, SENSO_CONNECTED, SENSO_FAILED_TO_CONNECT, SENSO_ERROR, SENSO_FINISHED, SENSO_STATE_NUM
-    };
-
-    ///
     /// @brief Class that connects to the Senso Server and provides pose samples
     ///
-    public class NetworkThread
+    public class TCPThread : NetworkThread
     {
-        public NetworkState State { get; private set; }
         private TcpClient m_sock;
         private NetworkStream m_stream;
         private IAsyncResult m_connectRes;
-        private bool m_isStarted = false;
-
-        private IPAddress m_ip;
-        private Int32 m_port;
 
         private int RECV_BUFFER_SIZE = 4096; //!< Size of the buffer for read operations
         private int SEND_BUFFER_SIZE = 4096; //!< Size of the buffer to send
@@ -38,26 +26,13 @@ namespace Senso
         ///
         /// @brief Default constructor
         ///
-        public NetworkThread(string host, Int32 port)
+        public TCPThread(string host, Int32 port) : base(host, port)
         {
-            m_port = port;
-            State = NetworkState.SENSO_DISCONNECTED;
             inBuffer = new Byte[RECV_BUFFER_SIZE];
             outBuffer = new Byte[SEND_BUFFER_SIZE];
-
-            if (!IPAddress.TryParse(host, out m_ip))
-            {
-                State = NetworkState.SENSO_ERROR;
-                Debug.LogError("SensoManager: can't parse senso driver host");
-            }
         }
 
-        ~NetworkThread()
-        {
-            StopThread();
-        }
-
-        public void StartThread()
+        public override void StartThread()
         {
             if (!m_isStarted)
             {
@@ -66,7 +41,7 @@ namespace Senso
             }
         }
 
-        public void StopThread()
+        public override void StopThread()
         {
             if (m_isStarted)
             {
@@ -126,7 +101,7 @@ namespace Senso
             }
         }
 
-        public Stack<NetData> UpdateData()
+        public override Stack<NetData> UpdateData()
         {
             if (State == NetworkState.SENSO_DISCONNECTED && m_isStarted)
             {
@@ -204,43 +179,33 @@ namespace Senso
         }
 
         ///
-        /// @brief Parses JSON packet received from server
-        ///
-        private NetData processJsonStr(string jsonPacket)
-        {
-            NetData parsedData = null;
-            try
-            {
-                parsedData = JsonUtility.FromJson<NetData>(jsonPacket);
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError("packet " + jsonPacket + " parse error: " + ex.Message);
-            }
-            
-            if (parsedData != null)
-            {
-                parsedData.packet = jsonPacket;
-            }
-            return parsedData;
-        }
-
-        ///
         /// @brief Send vibrating command to the server
         ///
-        public void VibrateFinger (EPositionType handType, EFingerType fingerType, ushort duration, byte strength)
+        public override void VibrateFinger (EPositionType handType, EFingerType fingerType, ushort duration, byte strength)
         {
-            var str = String.Format("{{\"dst\":\"{0}\",\"type\":\"vibration\",\"data\":{{\"type\":{1},\"dur\":{2},\"str\":{3}}}}}\n", (handType == EPositionType.RightHand ? "rh" : "lh"), (int)fingerType, duration, strength);
-            outBufferOffset += Encoding.ASCII.GetBytes(str, 0, str.Length, outBuffer, outBufferOffset);
+            sendToServer(GetVibrateFingerJSON(handType, fingerType, duration, strength));
         }
 
         ///
         /// @brief Sends HMD orientation to Senso Server
         ///
-        public void SetHeadLocationAndRotation(Vector3 position, Quaternion rotation) {
-            var str = String.Format("{{\"type\":\"orientation\",\"data\":{{\"type\":\"hmd\",\"px\":{0},\"py\":{1},\"pz\":{2}, \"qx\":{3},\"qy\":{4},\"qz\":{5},\"qw\":{6}}}}}\n", position.x, position.z, position.y, rotation.x, rotation.z, rotation.y, rotation.w);
-            outBufferOffset += Encoding.ASCII.GetBytes(str, 0, str.Length, outBuffer, outBufferOffset);
+        public override void SetHeadLocationAndRotation(Vector3 position, Quaternion rotation) 
+        {
+            sendToServer(GetHeadLocationAndRotationJSON(position, rotation));
         }
 
+        ///
+        /// @brief Sends ping to Senso Server
+        ///
+        public override void SendPing()
+        {
+            sendToServer(GetPingJSON());
+        }
+
+        private void sendToServer(String str)
+        {
+            if (str.Length > outBuffer.Length - outBufferOffset) return;
+            outBufferOffset += Encoding.ASCII.GetBytes(str, 0, str.Length, outBuffer, outBufferOffset);
+        }
     }
 }

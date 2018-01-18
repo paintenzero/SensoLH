@@ -46,14 +46,21 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\SensoGlove\Hand.cs" />
-     <Compile Include="Assets\SensoGlove\Receiver\BatteryData.cs" />
-     <Compile Include="Assets\SensoGlove\Receiver\HandData.cs" />
-     <Compile Include="Assets\SensoGlove\Receiver\NetData.cs" />
-     <Compile Include="Assets\SensoGlove\Receiver\NetworkThread.cs" />
-     <Compile Include="Assets\SensoGlove\Receiver\UDPThread.cs" />
-     <Compile Include="Assets\SensoGlove\SensoHandExample.cs" />
-     <Compile Include="Assets\SensoGlove\SensoHandsController.cs" />
+     <Compile Include="Assets\Senso\Body.cs" />
+     <Compile Include="Assets\Senso\Examples\SensoBodyExample.cs" />
+     <Compile Include="Assets\Senso\Examples\SensoHandExample.cs" />
+     <Compile Include="Assets\Senso\Hand.cs" />
+     <Compile Include="Assets\Senso\Helpers\SensoBodyJoint.cs" />
+     <Compile Include="Assets\Senso\Receiver\BatteryData.cs" />
+     <Compile Include="Assets\Senso\Receiver\BodyData.cs" />
+     <Compile Include="Assets\Senso\Receiver\HandData.cs" />
+     <Compile Include="Assets\Senso\Receiver\NetData.cs" />
+     <Compile Include="Assets\Senso\Receiver\NetworkThread.cs" />
+     <Compile Include="Assets\Senso\Receiver\TCPThread.cs" />
+     <Compile Include="Assets\Senso\Receiver\UDPThread.cs" />
+     <Compile Include="Assets\Senso\SensoBaseController.cs" />
+     <Compile Include="Assets\Senso\SensoBodyController.cs" />
+     <Compile Include="Assets\Senso\SensoHandsController.cs" />
      <Compile Include="Assets\SteamVR\Extras\SteamVR_GazeTracker.cs" />
      <Compile Include="Assets\SteamVR\Extras\SteamVR_LaserPointer.cs" />
      <Compile Include="Assets\SteamVR\Extras\SteamVR_Teleporter.cs" />

@@ -1,21 +1,12 @@
 ﻿using UnityEngine;
 
-public class SensoHandsController : MonoBehaviour {
+public class SensoHandsController : SensoBaseController
+{
 
     // Variables for hands objects
     public Senso.Hand[] Hands;
-    public Transform HeadPositionSource;
-    private System.DateTime orientationNextSend;
-    public double orientationSendEveryMS = 100.0f;
     private int m_rightHandInd = -1;
     private int m_leftHandInd = -1;
-
-    // Where to connect to
-    public string SensoHost = "127.0.0.1"; //!< IP address of the Senso Server instane
-    public int SensoPort = 53450; //!< Port of the Senso Server instance
-    private Senso.UDPThread sensoThread;
-
-    public bool StartOnLaunch = true;
 
     // Initialization
     void Start () {
@@ -34,30 +25,15 @@ public class SensoHandsController : MonoBehaviour {
                 }
             }
         }
-
-        if (StartOnLaunch) StartTracking();
-    }
-
-    private void OnDestroy()
-    {
-        StopTracking();
+        base.Start();
     }
 
     // Every frame
     void Update ()
     {
+        base.Update();
 		if (sensoThread != null)
         {
-            if (HeadPositionSource != null)
-            {
-                var now = System.DateTime.Now;
-                if (now >= orientationNextSend)
-                {
-                    sensoThread.SetHeadLocationAndRotation(HeadPositionSource.transform.localPosition, HeadPositionSource.transform.localRotation);
-                    orientationNextSend = now.AddMilliseconds(orientationSendEveryMS);
-                }
-            }
-
             var datas = sensoThread.UpdateData();
             if (datas != null)
             {
@@ -70,6 +46,7 @@ public class SensoHandsController : MonoBehaviour {
                         if ((m_rightHandInd != -1 && !rightUpdated) || (m_leftHandInd != -1 && !leftUpdated))
                         {
                             var handData = JsonUtility.FromJson<Senso.HandDataFull>(parsedData.packet);
+                            //Debug.Log(handData.data.handType);
                             if (handData.data.handType == Senso.EPositionType.RightHand && m_rightHandInd != -1 && !rightUpdated)
                             {
                                 setHandPose(ref handData, m_rightHandInd);
@@ -82,36 +59,10 @@ public class SensoHandsController : MonoBehaviour {
                             }
                         }
                     }
-                    else if (parsedData.type.Equals("gesture"))
-                    {
-
-                    }
-                    else if (parsedData.type.Equals("battery"))
-                    {
-                        // do nothing
-                    }
-                    else
-                    {
-                        Debug.Log("Received unknown type: " + parsedData.type);
-                    }
                 }
             }
         }
 	}
-
-    public void StartTracking() {
-        if (sensoThread == null) {
-            sensoThread = new Senso.UDPThread(SensoHost, SensoPort, 53459);
-            sensoThread.StartThread();
-        }
-    }
-
-    public void StopTracking() {
-        if (sensoThread != null) {
-            sensoThread.StopThread();
-            sensoThread = null;
-        }
-    }
 
     public void SendVibro(Senso.EPositionType handType, Senso.EFingerType finger, ushort duration, byte strength)
     {

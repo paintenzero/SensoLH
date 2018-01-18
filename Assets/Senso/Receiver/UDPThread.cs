@@ -8,23 +8,11 @@ using System.Collections.Generic;
 
 namespace Senso
 {
-    public class UDPThread
+    public class UDPThread : NetworkThread
     {
-        ///
-        /// @brief States of the network thread
-        public enum NetworkState
-        {
-            SENSO_DISCONNECTED, SENSO_CONNECTING, SENSO_CONNECTED, SENSO_FAILED_TO_CONNECT, SENSO_ERROR, SENSO_FINISHED, SENSO_STATE_NUM
-        };
-
-        public NetworkState State { get; private set; }
         private Thread netThread;
-        private bool m_isStarted = false;
 
         private UdpClient m_sock;
-        private IPAddress m_ip;
-        private Int32 m_port;
-        private Int32 m_localPort;
         private IPEndPoint ep;
 
         private Stack<NetData> pendingPackets;
@@ -37,21 +25,14 @@ namespace Senso
         ///
         /// @brief Default constructor
         ///
-        public UDPThread(string host, Int32 port, Int32 localPort)
+        public UDPThread(string host, Int32 port) : base(host, port)
         {
             outBuffer = new Byte[SEND_BUFFER_SIZE];
-
-            m_port = port;
-            m_localPort = localPort;
-            if (!IPAddress.TryParse(host, out m_ip))
-            {
-                State = NetworkState.SENSO_ERROR;
-                Debug.LogError("SensoManager: can't parse senso driver host");
-            } else
+            
+            if (State != NetworkState.SENSO_ERROR)
             {
                 ep = new IPEndPoint(m_ip, m_port);
             }
-            State = NetworkState.SENSO_DISCONNECTED;
 
             pendingPackets = new Stack<NetData>();
         }
@@ -64,7 +45,7 @@ namespace Senso
         ///
         /// @brief starts the thread that reads from socket
         ///
-        public void StartThread()
+        public override void StartThread()
         {
             if (!m_isStarted)
             {
@@ -77,7 +58,7 @@ namespace Senso
         ///
         /// @brief Stops the thread that reads from socket
         ///
-        public void StopThread()
+        public override void StopThread()
         {
             if (m_isStarted)
             {
@@ -87,10 +68,9 @@ namespace Senso
         }
 
         private void Run()
-        {
-            
+        { 
             Byte[] inBuffer;
-            m_sock = new UdpClient(m_localPort);
+            m_sock = new UdpClient();
 
             while (m_isStarted && State != NetworkState.SENSO_ERROR)
             {
@@ -102,7 +82,7 @@ namespace Senso
                     while (m_isStarted && !rcvReady)
                     {
                         rcvReady = m_sock.Client.Poll(10, SelectMode.SelectRead);
-                        if (!rcvReady && DateTime.Now.Subtract(now).Milliseconds >= 100) break;
+                        if (!rcvReady && DateTime.Now.Subtract(now).Milliseconds >= 200) break;
                     }
                     if (rcvReady)
                     {
@@ -140,29 +120,7 @@ namespace Senso
             State = NetworkState.SENSO_DISCONNECTED;
         }
 
-        ///
-        /// @brief Parses JSON packet received from server
-        ///
-        private NetData processJsonStr(string jsonPacket)
-        {
-            NetData parsedData = null;
-            try
-            {
-                parsedData = JsonUtility.FromJson<NetData>(jsonPacket);
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError("packet " + jsonPacket + " parse error: " + ex.Message);
-            }
-
-            if (parsedData != null)
-            {
-                parsedData.packet = jsonPacket;
-            }
-            return parsedData;
-        }
-
-        public Stack<NetData> UpdateData()
+        public override Stack<NetData> UpdateData()
         {
             Stack<NetData> result = null;
             lock (packetsLock)
@@ -177,29 +135,41 @@ namespace Senso
         ///
         /// @brief Send vibrating command to the server
         ///
-        public void VibrateFinger(EPositionType handType, EFingerType fingerType, ushort duration, byte strength)
+        public override void VibrateFinger(EPositionType handType, EFingerType fingerType, ushort duration, byte strength)
         {
             if (m_sock != null)
             {
-                var str = String.Format("{{\"dst\":\"{0}\",\"type\":\"vibration\",\"data\":{{\"type\":{1},\"dur\":{2},\"str\":{3}}}}}\n", (handType == EPositionType.RightHand ? "rh" : "lh"), (int)fingerType, duration, strength);
-                outBufferOffset += Encoding.ASCII.GetBytes(str, 0, str.Length, outBuffer, outBufferOffset);
-                m_sock.Send(outBuffer, outBufferOffset, ep);
-                outBufferOffset = 0;
+                sendToServer(GetVibrateFingerJSON(handType, fingerType, duration, strength));
             }
         }
 
         ///
         /// @brief Sends HMD orientation to Senso Server
         ///
-        public void SetHeadLocationAndRotation(Vector3 position, Quaternion rotation)
+        public override void SetHeadLocationAndRotation(Vector3 position, Quaternion rotation)
         {
             if (m_sock != null)
             {
-                var str = String.Format("{{\"type\":\"orientation\",\"data\":{{\"type\":\"hmd\",\"px\":{0},\"py\":{1},\"pz\":{2}, \"qx\":{3},\"qy\":{4},\"qz\":{5},\"qw\":{6}}}}}\n", position.x, position.z, position.y, rotation.x, rotation.z, rotation.y, rotation.w);
-                outBufferOffset += Encoding.ASCII.GetBytes(str, 0, str.Length, outBuffer, outBufferOffset);
-                m_sock.Send(outBuffer, outBufferOffset, ep);
-                outBufferOffset = 0;
+                sendToServer(GetHeadLocationAndRotationJSON(position, rotation));
             }
+        }
+
+        ///
+        /// @brief Sends ping to Senso Server
+        ///
+        public override void SendPing()
+        {
+            if (m_sock != null)
+            {
+                sendToServer(GetPingJSON());
+            }
+        }
+
+        private void sendToServer(String str)
+        {
+            outBufferOffset += Encoding.ASCII.GetBytes(str, 0, str.Length, outBuffer, outBufferOffset);
+            m_sock.Send(outBuffer, outBufferOffset, ep);
+            outBufferOffset = 0;
         }
     }
 }
