@@ -1,0 +1,3 @@
+[submodule "Assets/Senso"]
+	path = Assets/Senso
+	url = https://github.com/paintenzero/senso-unity-plugin.git
